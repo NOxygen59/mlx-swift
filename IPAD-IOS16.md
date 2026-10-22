@@ -18,6 +18,7 @@ But : faire tourner MLX récent (et donc les modèles récents de mlx-swift-lm) 
 
 | `Source/Cmlx/ios16-overrides/src/metal_device.cpp` (original `mlx/backend/metal/device.cpp` exclu) | MLX compile ses noyaux à la volée en Metal ≥ 3.1 (iOS 17) | branche **Metal 3.0** pour iOS 16 ; `MLX_METAL_LANGUAGE_VERSION=30` force Metal 3.0 sur Mac pour tester |
 | idem, `build_library_` | `#pragma clang fp reassociate(off)` inconnu du clang d'iOS 16 (noyaux à somme de Kahan, ex. GatedDelta / Qwen3.5) | directive retirée **et** bibliothèque compilée sans maths rapides (même garantie : aucune réassociation), seulement en Metal 3.0 |
+| `steel/attn/mma.h`, `steel/gemm/mma.h` (+ copies `gemm.cpp`, `conv.cpp`, `steel_attention.cpp`) | `BaseMMAFrag<bool>` (masque booléen de l'attention, ex. Qwen3-VL) déclare `simdgroup_matrix<bool>` : le compilateur d'iOS 16 refuse la **déclaration** (enable_if), les récents l'acceptent tant qu'elle ne sert pas | `mat_type` via `mlx_simdgroup_matrix_or_none<T,R,C>` : `simdgroup_matrix` pour tous les types comme avant, type vide pour `bool` (jamais utilisé : le masque ne lit que `frag_type`) |
 
 Seuls les fichiers de `mlx-generated/metal` sont compilés (le dossier `kernels` du sous-module `mlx` est exclu) :
 le sous-module n'est pas modifié.

@@ -29,6 +29,16 @@ struct BaseMMAFrag {
       "Only 8 x 8 fragment matrices are currently supported");
 };
 
+// ipad-ios16 : simdgroup_matrix<bool> refusé à la déclaration sur iOS 16 ; jamais utilisé pour bool.
+template <typename T, int R, int C>
+struct mlx_simdgroup_matrix_or_none {
+  typedef metal::simdgroup_matrix<T, R, C> type;
+};
+template <int R, int C>
+struct mlx_simdgroup_matrix_or_none<bool, R, C> {
+  struct type {};
+};
+
 template <typename T>
 struct BaseMMAFrag<T, 8, 8> {
   STEEL_CONST int kFragRows = 8;
@@ -43,7 +53,7 @@ struct BaseMMAFrag<T, 8, 8> {
       kElemRows * kElemCols == kElemsPerFrag,
       "MMAFrag shape is not consistent with MMAFrag size");
 
-  typedef metal::simdgroup_matrix<T, kFragRows, kFragCols> mat_type;
+  typedef typename mlx_simdgroup_matrix_or_none<T, kFragRows, kFragCols>::type mat_type;
   typedef metal::vec<T, kElemsPerFrag> frag_type;
 
   METAL_FUNC static constexpr short2 get_coord(
