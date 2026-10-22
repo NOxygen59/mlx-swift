@@ -245,6 +245,9 @@ let cmlx = Target.target(
     name: "Cmlx",
     path: "Source/Cmlx",
     exclude: platformExcludes + [
+        // ipad-ios16 : remplacé par ios16-overrides/src/metal_device.cpp (Metal 3.0 sur iOS 16)
+        "mlx/mlx/backend/metal/device.cpp",
+
         // vendor docs
         "vendor-README.md",
 
