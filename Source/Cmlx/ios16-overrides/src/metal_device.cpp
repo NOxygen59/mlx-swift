@@ -662,13 +662,29 @@ NS::SharedPtr<MTL::Library> Device::build_library_(
     const CompileOptions& compile_options) {
   auto pool = new_scoped_memory_pool();
 
+  // ipad-ios16 : le clang de Metal 3.0 (iOS 16) ne connaît pas `#pragma clang fp reassociate(off)` (noyaux qui
+  // protègent une somme de Kahan, ex. GatedDelta de mlx-swift-lm). Équivalent exact : retirer la directive et
+  // compiler cette bibliothèque **sans maths rapides** (le compilateur n'a alors plus le droit de réassocier).
+  std::string source = source_string;
+  bool strict_math = false;
+  if (get_metal_version() < MTL::LanguageVersion3_1) {
+    const std::string pragma = "#pragma clang fp reassociate(off)";
+    for (auto at = source.find(pragma); at != std::string::npos; at = source.find(pragma, at)) {
+      source.replace(at, pragma.size(), "/* ipad-ios16 : maths strictes */");
+      strict_math = true;
+    }
+  }
+
   auto ns_code =
-      NS::String::string(source_string.c_str(), NS::ASCIIStringEncoding);
+      NS::String::string(source.c_str(), NS::ASCIIStringEncoding);
 
   NS::Error* error = nullptr;
   auto options = MTL::CompileOptions::alloc()->init()->autorelease();
   set_compile_options(options, compile_options);
   options->setLanguageVersion(get_metal_version());
+  if (strict_math) {
+    options->setFastMathEnabled(false);
+  }
 #ifndef NDEBUG
   if (options->languageVersion() >= MTL::LanguageVersion3_2) {
     options->setEnableLogging(true);

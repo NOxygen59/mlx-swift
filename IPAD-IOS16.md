@@ -17,6 +17,7 @@ But : faire tourner MLX récent (et donc les modèles récents de mlx-swift-lm) 
 | `…/metal/dot.h` | lecture `vec<T,4>` de bfloat | lecture élément par élément pour le bfloat |
 
 | `Source/Cmlx/ios16-overrides/src/metal_device.cpp` (original `mlx/backend/metal/device.cpp` exclu) | MLX compile ses noyaux à la volée en Metal ≥ 3.1 (iOS 17) | branche **Metal 3.0** pour iOS 16 ; `MLX_METAL_LANGUAGE_VERSION=30` force Metal 3.0 sur Mac pour tester |
+| idem, `build_library_` | `#pragma clang fp reassociate(off)` inconnu du clang d'iOS 16 (noyaux à somme de Kahan, ex. GatedDelta / Qwen3.5) | directive retirée **et** bibliothèque compilée sans maths rapides (même garantie : aucune réassociation), seulement en Metal 3.0 |
 
 Seuls les fichiers de `mlx-generated/metal` sont compilés (le dossier `kernels` du sous-module `mlx` est exclu) :
 le sous-module n'est pas modifié.
