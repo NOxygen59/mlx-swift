@@ -21,4 +21,9 @@ Seuls les fichiers de `mlx-generated/metal` sont compilés (le dossier `kernels`
 le sous-module n'est pas modifié.
 
 À savoir : le bfloat logiciel est plus lent que le natif ; préférer des modèles en float16 ou quantifiés.
-Pour remonter sur une nouvelle version : refaire ces mêmes changements (garder ce tableau à jour).
+Les noyaux compilés **à la volée** (JIT) utilisent des copies embarquées de ces en-têtes dans
+`Source/Cmlx/mlx-generated/*.cpp` : elles reçoivent les mêmes corrections.
+
+**Pour remonter sur une nouvelle version de MLX** : `tools/update-mlx.sh`, puis `python3 tools/ipad-ios16-patch.py`
+(applique tout, échoue s'il reste du `bfloat` natif), puis tester sur Mac avec `MLX_METAL_LANGUAGE_VERSION=30`
+(mêmes conditions de compilation que l'iPad sous iOS 16).

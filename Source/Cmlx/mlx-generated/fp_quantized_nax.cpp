@@ -136,7 +136,7 @@ struct fp8_e8m0 {
 
   operator bfloat16_t() thread {
     uint16_t out = (bits == 0 ? 0x40 : (static_cast<uint16_t>(bits) << 7));
-    return as_type<bfloat16_t>(out);
+    return bfloat16_t(out, bfloat16_t::bits_to_bfloat());  // ipad-ios16
   }
 
   operator float() thread {
