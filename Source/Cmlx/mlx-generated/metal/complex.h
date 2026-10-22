@@ -156,7 +156,7 @@ using complex64_t = complex_t<float>;
 
 static_assert(sizeof(complex32_t) == 2 * sizeof(half));
 static_assert(sizeof(complex64_t) == 2 * sizeof(float));
-static_assert(sizeof(complex_t<bfloat16_t>) == 2 * sizeof(bfloat16_t));
+// ipad-ios16 : pas de complexe bfloat (le bfloat logiciel ne peut pas être un élément de vecteur Metal).
 
 template <typename T>
 constexpr complex_t<T> operator-(complex_t<T> x) {
@@ -297,7 +297,4 @@ constexpr complex_t<T> operator%(complex_t<T> a, complex_t<T> b) {
 
 static_assert(
     (complex_t<half>{1.0h, 2.0h} * complex_t<half>{3.0h, 4.0h}).real == -5.0h);
-static_assert(
-    (complex_t<bfloat16_t>{bfloat16_t(1.0f), bfloat16_t(2.0f)} *
-     complex_t<bfloat16_t>{bfloat16_t(3.0f), bfloat16_t(4.0f)})
-        .real == bfloat16_t(-5.0f));
+// ipad-ios16 : test du complexe bfloat retiré (voir plus haut).

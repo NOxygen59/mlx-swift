@@ -31,10 +31,16 @@ template <
     if (idx + VEC <= n) {
       MLX_MTL_PRAGMA_UNROLL
       for (int j = 0; j < VEC; j += 4) {
-        c += float4(*reinterpret_cast<const device metal::vec<T, 4>*>(
-                 a + idx + j)) *
-            float4(*reinterpret_cast<const device metal::vec<T, 4>*>(
-                b + idx + j));
+        // ipad-ios16 : bfloat logiciel → lecture élément par élément (pas de vecteur Metal de bfloat).
+        if constexpr (is_same_v<T, bfloat16_t>) {
+          c += float4(float(a[idx + j]), float(a[idx + j + 1]), float(a[idx + j + 2]), float(a[idx + j + 3])) *
+              float4(float(b[idx + j]), float(b[idx + j + 1]), float(b[idx + j + 2]), float(b[idx + j + 3]));
+        } else {
+          c += float4(*reinterpret_cast<const device metal::vec<T, 4>*>(
+                   a + idx + j)) *
+              float4(*reinterpret_cast<const device metal::vec<T, 4>*>(
+                  b + idx + j));
+        }
       }
     } else {
       MLX_MTL_PRAGMA_UNROLL

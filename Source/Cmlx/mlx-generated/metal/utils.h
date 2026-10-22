@@ -463,7 +463,7 @@ inline bool cast_to<bool, float>(float val) {
 
 template <>
 inline bool cast_to<bool, bfloat16_t>(bfloat16_t val) {
-  return (as_type<uint16_t>(val) & 0x7FFF) != 0;
+  return (val.bits_ & 0x7FFF) != 0;  // ipad-ios16 : bfloat logiciel
 }
 
 template <>

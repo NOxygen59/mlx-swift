@@ -228,6 +228,9 @@ let noCudaCmlxExcludes = [
         .define("_METAL_"),
         .define("SWIFTPM_BUNDLE", to: "\"mlx-swift_Cmlx\""),
         .define("METAL_PATH", to: "\"default.metallib\""),
+        // ipad-ios16 : std::format des nombres décimaux (to_chars) est marqué iOS 16.3+ ; présent à l'exécution
+        // sur 16.3 et plus (cible : 16.6). On coupe le contrôle d'API de libc++ au lieu de monter la version minimale.
+        .define("_LIBCPP_DISABLE_AVAILABILITY"),
     ]
 
     let linkerSettings: [LinkerSetting] = [
@@ -320,7 +323,7 @@ let package = Package(
 
     platforms: [
         .macOS("14.0"),
-        .iOS(.v17),
+        .iOS(.v16),  // ipad-ios16 : voir IPAD-IOS16.md
         .tvOS(.v17),
         .visionOS(.v1),
     ],
