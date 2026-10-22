@@ -47,12 +47,38 @@ using Int = integral_constant<int, val>;
 // Binary Operators on Integral constants
 ///////////////////////////////////////////////////////////////////////////////
 
+// ipad-ios16 : équivalent du remove_addrspace_t de Metal 3.1+, absent sur iOS 16.
+template <typename T>
+struct mlx_remove_addrspace {
+  typedef T type;
+};
+#if defined(__HAVE_GENERIC_ADDRESS_SPACE__)
+template <typename T>
+struct mlx_remove_addrspace<thread T> {
+  typedef T type;
+};
+#endif
+template <typename T>
+struct mlx_remove_addrspace<device T> {
+  typedef T type;
+};
+template <typename T>
+struct mlx_remove_addrspace<constant T> {
+  typedef T type;
+};
+template <typename T>
+struct mlx_remove_addrspace<threadgroup T> {
+  typedef T type;
+};
+template <typename T>
+using mlx_remove_addrspace_t = typename mlx_remove_addrspace<T>::type;
+
 #define integral_const_binop(__op__, __operator__)          \
   template <typename T, T tv, typename U, U uv>             \
   METAL_FUNC constexpr auto __operator__(                   \
       integral_constant<T, tv>, integral_constant<U, uv>) { \
     constexpr auto res = tv __op__ uv;                      \
-    using res_t = metal::remove_addrspace_t<decltype(res)>; \
+    using res_t = mlx_remove_addrspace_t<decltype(res)>; \
     return integral_constant<res_t, res>{};                 \
   }
 

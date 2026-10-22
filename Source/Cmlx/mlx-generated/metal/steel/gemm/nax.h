@@ -420,8 +420,8 @@ struct BaseNAXFrag {
 
     // Create matmul output in register
     auto ct_c = gemm_op.template get_destination_cooperative_tensor<
-        metal::remove_addrspace_t<decltype(ct_a)>,
-        metal::remove_addrspace_t<decltype(ct_b)>,
+        mlx_remove_addrspace_t<decltype(ct_a)>,
+        mlx_remove_addrspace_t<decltype(ct_b)>,
         CType>();
 
     // Load A in to left operand registers
@@ -492,8 +492,8 @@ struct BaseNAXFrag {
 
     // Create matmul output in register
     auto ct_c = gemm_op.template get_destination_cooperative_tensor<
-        metal::remove_addrspace_t<decltype(ct_a)>,
-        metal::remove_addrspace_t<decltype(ct_b)>,
+        mlx_remove_addrspace_t<decltype(ct_a)>,
+        mlx_remove_addrspace_t<decltype(ct_b)>,
         CType>();
 
     // Load A in to left operand registers

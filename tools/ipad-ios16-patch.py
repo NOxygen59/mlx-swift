@@ -51,10 +51,45 @@ REPLACEMENTS = [
         }"""),
 ]
 
+# metal::remove_addrspace_t n'existe qu'à partir de Metal 3.1 (absent du compilateur d'iOS 16). Équivalent exact,
+# recopié de metal_type_traits (Apple), sous un nom à nous (aucun conflit avec les compilateurs qui l'ont).
+REMOVE_ADDRSPACE = """// ipad-ios16 : équivalent du remove_addrspace_t de Metal 3.1+, absent sur iOS 16.
+template <typename T>
+struct mlx_remove_addrspace {
+  typedef T type;
+};
+#if defined(__HAVE_GENERIC_ADDRESS_SPACE__)
+template <typename T>
+struct mlx_remove_addrspace<thread T> {
+  typedef T type;
+};
+#endif
+template <typename T>
+struct mlx_remove_addrspace<device T> {
+  typedef T type;
+};
+template <typename T>
+struct mlx_remove_addrspace<constant T> {
+  typedef T type;
+};
+template <typename T>
+struct mlx_remove_addrspace<threadgroup T> {
+  typedef T type;
+};
+template <typename T>
+using mlx_remove_addrspace_t = typename mlx_remove_addrspace<T>::type;
+
+"""
+
 def patch(text: str) -> str:
     text = NATIVE_BF16.sub(lambda _: SOFT_HELPERS, text)
     for old, new in REPLACEMENTS:
         text = text.replace(old, new)
+    if "metal::remove_addrspace_t<" in text:
+        text = text.replace("metal::remove_addrspace_t<", "mlx_remove_addrspace_t<")
+    marker = "#define integral_const_binop(__op__, __operator__)"
+    if marker in text and "struct mlx_remove_addrspace {" not in text:
+        text = text.replace(marker, REMOVE_ADDRSPACE + marker, 1)
     return text
 
 changed = 0
@@ -66,6 +101,7 @@ for f in files:
         after = SOFT  # en-tête compilé par Xcode : version logicielle complète
     if after != before:
         f.write_text(after); changed += 1; print("corrigé :", f.relative_to(ROOT))
-left = [str(f.relative_to(ROOT)) for f in files if "typedef bfloat bfloat16_t" in f.read_text()]
-print(f"{changed} fichier(s) corrigé(s) ; bfloat natif restant : {left or 'aucun'}")
+left = [str(f.relative_to(ROOT)) for f in files
+        if "typedef bfloat bfloat16_t" in f.read_text() or "metal::remove_addrspace_t" in f.read_text()]
+print(f"{changed} fichier(s) corrigé(s) ; Metal 3.1 restant (bfloat, remove_addrspace_t) : {left or 'aucun'}")
 sys.exit(1 if left else 0)

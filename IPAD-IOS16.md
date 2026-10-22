@@ -13,6 +13,7 @@ But : faire tourner MLX récent (et donc les modèles récents de mlx-swift-lm) 
 | `Source/Cmlx/mlx-generated/metal/bf16.h` | le type Metal `bfloat` natif exige Metal 3.1 = iOS 17 | `bfloat` **logiciel** (`_MLX_BFloat16`, repris de mlx-swift 0.29.1) |
 | `…/metal/utils.h`, `…/metal/fp8.h` | `as_type` sur le bfloat natif | lecture / écriture des bits (`bits_`, `bits_to_bfloat`) |
 | `…/metal/complex.h` | complexe bfloat = vecteur Metal de bfloat (impossible en logiciel) | complexe bfloat retiré (non utilisé par les modèles) |
+| `…/metal/steel/utils/integral_constant.h`, `steel/*/nax.h` | `metal::remove_addrspace_t` = Metal 3.1 (absent du compilateur d'iOS 16, présent sur Mac même en mode 3.0 : le test Mac ne le voyait pas) | `mlx_remove_addrspace_t`, copie exacte de la définition d'Apple (`metal_type_traits`) |
 | `…/metal/dot.h` | lecture `vec<T,4>` de bfloat | lecture élément par élément pour le bfloat |
 
 | `Source/Cmlx/ios16-overrides/src/metal_device.cpp` (original `mlx/backend/metal/device.cpp` exclu) | MLX compile ses noyaux à la volée en Metal ≥ 3.1 (iOS 17) | branche **Metal 3.0** pour iOS 16 ; `MLX_METAL_LANGUAGE_VERSION=30` force Metal 3.0 sur Mac pour tester |
