@@ -20,16 +20,8 @@ NATIVE_BF16 = re.compile(
 
 # Corps du bf16 logiciel sans l'en-tête de fichier (copyright, #pragma once, include, using).
 soft_body = SOFT.split("using namespace metal;", 1)[1].lstrip("\n")
-SOFT_HELPERS = soft_body + """
-// ipad-ios16 : mêmes fonctions que le bf16.h natif.
-inline uint16_t bfloat16_to_uint16(const bfloat16_t x) {
-  return x.bits_;
-}
-
-inline bfloat16_t uint16_to_bfloat16(const uint16_t x) {
-  return bfloat16_t(x, bfloat16_t::bits_to_bfloat());
-}
-"""
+# Le bf16 logiciel définit déjà bfloat16_to_uint16 / uint16_to_bfloat16 (mêmes noms que le natif).
+SOFT_HELPERS = soft_body
 
 REPLACEMENTS = [
     ("return (as_type<uint16_t>(val) & 0x7FFF) != 0;",

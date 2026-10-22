@@ -325,15 +325,6 @@ inline bfloat16_t uint16_to_bfloat16(const uint16_t x) {
   return _MLX_BFloat16(x, _MLX_BFloat16::bits_to_bfloat());
 }
 
-// ipad-ios16 : mêmes fonctions que le bf16.h natif.
-inline uint16_t bfloat16_to_uint16(const bfloat16_t x) {
-  return x.bits_;
-}
-
-inline bfloat16_t uint16_to_bfloat16(const uint16_t x) {
-  return bfloat16_t(x, bfloat16_t::bits_to_bfloat());
-}
-
 ///////////////////////////////////////////////////////////////////////////////
 // Contents from "mlx/backend/metal/kernels/bf16_math.h"
 ///////////////////////////////////////////////////////////////////////////////
