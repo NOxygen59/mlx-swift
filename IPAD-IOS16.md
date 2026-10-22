@@ -8,7 +8,8 @@ But : faire tourner MLX récent (et donc les modèles récents de mlx-swift-lm) 
 
 | Fichier | Pourquoi | Quoi |
 |---|---|---|
-| `Package.swift` | MLX déclare iOS 17 | `.iOS(.v16)` ; `_LIBCPP_DISABLE_AVAILABILITY` (`std::format` de flottants marqué iOS 16.3+, présent à l'exécution dès 16.3) |
+| `Package.swift` | MLX déclare iOS 17 | `.iOS(.v16)` ; dossier `Source/Cmlx/ios16-overrides` cherché en premier (C et C++) |
+| `Source/Cmlx/ios16-overrides/mlx/c/private/io.h` | `std::format` (mlx-c) exige des fonctions libc++ d'iOS 16.3+ | copie sans `std::format` (concaténation). **Ne jamais** utiliser `_LIBCPP_DISABLE_AVAILABILITY` : l'app plantait au lancement sur iOS 16.6 (`exception_ptr::__from_native_exception_pointer` absent du libc++ système) |
 | `Source/Cmlx/mlx-generated/metal/bf16.h` | le type Metal `bfloat` natif exige Metal 3.1 = iOS 17 | `bfloat` **logiciel** (`_MLX_BFloat16`, repris de mlx-swift 0.29.1) |
 | `…/metal/utils.h`, `…/metal/fp8.h` | `as_type` sur le bfloat natif | lecture / écriture des bits (`bits_`, `bits_to_bfloat`) |
 | `…/metal/complex.h` | complexe bfloat = vecteur Metal de bfloat (impossible en logiciel) | complexe bfloat retiré (non utilisé par les modèles) |

@@ -228,9 +228,6 @@ let noCudaCmlxExcludes = [
         .define("_METAL_"),
         .define("SWIFTPM_BUNDLE", to: "\"mlx-swift_Cmlx\""),
         .define("METAL_PATH", to: "\"default.metallib\""),
-        // ipad-ios16 : std::format des nombres décimaux (to_chars) est marqué iOS 16.3+ ; présent à l'exécution
-        // sur 16.3 et plus (cible : 16.6). On coupe le contrôle d'API de libc++ au lieu de monter la version minimale.
-        .define("_LIBCPP_DISABLE_AVAILABILITY"),
     ]
 
     let linkerSettings: [LinkerSetting] = [
@@ -303,11 +300,15 @@ let cmlx = Target.target(
         "mlx/mlx/distributed/jaccl/lib",
     ],
     cSettings: [
+        // ipad-ios16 : en-têtes corrigés pour iOS 16 (les réglages C passent avant ceux du C++).
+        .headerSearchPath("ios16-overrides"),
         .headerSearchPath("mlx"),
         .headerSearchPath("mlx-c"),
         .headerSearchPath("mlx-generated/cuda"),
     ],
     cxxSettings: cxxSettings + [
+        // ipad-ios16 : en-têtes corrigés pour iOS 16, cherchés avant ceux des sous-modules.
+        .headerSearchPath("ios16-overrides"),
         .headerSearchPath("mlx"),
         .headerSearchPath("mlx-c"),
         .headerSearchPath("json/single_include/nlohmann"),
